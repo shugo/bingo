@@ -58,7 +58,7 @@ function sayBingo(i) {
 }
 
 function update() {
-  fetch("/numbers.json")
+  fetch("/numbers/selected")
     .then((response) => {
       return response.json()
     })
