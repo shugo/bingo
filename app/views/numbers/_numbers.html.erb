@@ -1,0 +1,10 @@
+<% for i in 1..75
+     klass = if numbers.last == i
+               "last-selected"
+             elsif numbers.include?(i)
+               "selected"
+             else
+               "unselected"
+             end %>
+<span class="num <%= klass %>"><%= i %></span>
+<% end %>

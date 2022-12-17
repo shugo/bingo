@@ -1,0 +1,76 @@
+<style type="text/css">
+  body {
+    font-family: sans-serif;
+    background-color: #fff1c2;
+  }
+  #main {
+    padding: 30px;
+  }
+  #numbers {
+    margin-top: 30px;
+  }
+  .num {
+    display: inline-block;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    font-size: 48px;
+    text-align: center;
+    line-height: 80px;
+    margin: 5px;
+  }
+  .unselected {
+    background: #888;
+    color: #fff;
+  }
+  .selected {
+    background: #ec8646;
+    color: #fff;
+  }
+  .last-selected {
+    background: #ec4646;
+    color: #fff;
+  }
+
+.btn {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.5;
+  position: relative;
+  display: inline-block;
+  padding: 1rem 4rem;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+  text-align: center;
+  vertical-align: middle;
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  color: #212529;
+  border-radius: 0.5rem;
+  border: none;
+}
+.btn--orange {
+  color: #fff;
+  background-color: #eb6100;
+  font-size: 50px;
+}
+.btn--orange:hover {
+  color: #fff;
+  background: #f56500;
+}
+</style>
+
+<div id="main">
+<%= link_to "SELECT", numbers_path, data: { "turbo-method": :post }, class: "btn btn--orange btn--radius" %>
+<%= link_to "RESET", numbers_path, data: { "turbo-method": :delete }, class: "btn btn--orange btn--radius" %>
+<div id="numbers">
+<%= turbo_frame_tag "numbers" do %>
+<%= render partial: "numbers", locals: { numbers: @numbers } %>
+<% end %>
+</div>
+</div>

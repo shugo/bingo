@@ -1,0 +1,3 @@
+<%= turbo_stream.update "numbers" do %>
+<%= render partial: "numbers", locals: { numbers: @numbers } %>
+<% end %>

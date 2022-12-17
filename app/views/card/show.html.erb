@@ -1,0 +1,69 @@
+<script src="https://cdn.jsdelivr.net/npm/ruby-head-wasm-wasi@0.5.0/dist/browser.script.iife.js"></script>
+<script type="text/ruby">
+  require "js"
+
+  srand
+
+  document = JS.global[:document]
+
+  bingo = (1..75).each_slice(15).map { |i| i.sample(5) }.transpose
+  bingo[2][2] = ""
+
+  card = document.getElementById("card")
+  card[:innerHTML] = 
+    "<tr>" + "BINGO".chars.map.with_index { |c, i| "<th id=\"h#{i}\">#{c}</th>" }.join + "</tr>" +
+    bingo.map.with_index { |row, y|
+      "<tr>" + row.map.with_index { |i, x| "<td id=\"c#{x}#{y}\">#{i}</td>" }.join + "</tr>"
+    }.join
+  cell = document.getElementById("c22")
+  cell[:style][:backgroundColor] = "#ffd75e"
+
+  define_method(:update) do
+    selected_numbers = JS.global.fetch("/numbers.json").await.json.await[:numbers].to_s.split(/,/).map(&:to_i)
+    5.times do |x|
+      5.times do |y|
+        cell = document.getElementById("c#{x}#{y}")
+        if selected_numbers.last == bingo[y][x]
+          cell[:style][:backgroundColor] = "#ec4646"
+        elsif selected_numbers.include?(bingo[y][x])
+          cell[:style][:backgroundColor] = "#ffd75e"
+        end
+      end
+    end
+  end
+</script>
+<script type="text/javascript">
+function callUpdate() {
+  window.rubyVM.evalAsync('update')
+  setTimeout(callUpdate, 5000)
+}
+
+setTimeout(callUpdate, 5000)
+</script>
+<style type="text/css">
+  #card {
+    font-size: 3em;
+    font-family: sans-serif;
+  }
+  @media screen and (max-device-width: 600px) {
+    #card {
+      width: 100vw;
+      height: 100vw;
+    }
+  }
+  #card th {
+    background-color: #3258a8;
+    color: #ffffff;
+    padding: 0.3em;
+  }
+  #card td {
+    background-color: #b4dafa;
+    color: #000000;
+    padding: 0.3em;
+    text-align: center;
+  }
+</style>
+
+<button id="update" onclick="window.rubyVM.evalAsync('update')">UPDATE</button>
+<table id="card">
+</table>
