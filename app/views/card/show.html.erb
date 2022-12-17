@@ -33,6 +33,30 @@
   end
 </script>
 <script type="text/javascript">
+function isBingo(selectedNumbers) {
+  let bingo = [[], [], [], [], []];
+  for (let x = 0; x < 5; x++) {
+    for (let y = 0; y < 5; y++) {
+      let cell = document.getElementById(`c${x}${y}`)
+      bingo[y][x] = window.getComputedStyle(cell, "").backgroundColor != 'rgb(180, 218, 250)'
+    }
+  }
+  let n = 0;
+  for (let i = 0; i < 5; i++) {
+    if ([0, 1, 2, 3, 4].every((j) => bingo[i][j])) n++;
+    if ([0, 1, 2, 3, 4].every((j) => bingo[j][i])) n++;
+  }
+  if ([0, 1, 2, 3, 4].every((i) => bingo[i][i])) n++;
+  if ([0, 1, 2, 3, 4].every((i) => bingo[i][4 - i])) n++;
+  return n >= 3;
+}
+
+function sayBingo(i) {
+  let cell = document.getElementById(`h${i}`)
+  cell.style.backgroundColor = "#ec4646"
+  if (i < 4) setTimeout(() => sayBingo(i + 1), 500);
+}
+
 function update() {
   fetch("/numbers.json")
     .then((response) => {
@@ -52,8 +76,15 @@ function update() {
           }
         }
       }
+      if (isBingo(selectedNumbers)) {
+        sayBingo(0);
+      }
+      else {
+        setTimeout(update, 5000)
+      }
     })
-    .finally(() => {
+    .catch((error) => {
+      console.log(error);
       setTimeout(update, 5000)
     })
 }
@@ -62,25 +93,31 @@ setTimeout(update, 5000)
 </script>
 <style type="text/css">
   #card {
-    font-size: 3em;
+    font-size: 2em;
     font-family: sans-serif;
   }
   @media screen and (max-device-width: 600px) {
+    body {
+      margin: 0;
+    }
     #card {
       width: 100vw;
       height: 100vw;
+      font-size: 10vw;
+      padding: 8px;
     }
   }
   #card th {
     background-color: #3258a8;
     color: #ffffff;
-    padding: 0.3em;
+    text-align: center;
+    padding: 5px;
   }
   #card td {
     background-color: #b4dafa;
     color: #000000;
-    padding: 0.3em;
     text-align: center;
+    padding: 5px;
   }
 </style>
 
