@@ -33,12 +33,32 @@
   end
 </script>
 <script type="text/javascript">
-function callUpdate() {
-  window.rubyVM.evalAsync('update')
-  setTimeout(callUpdate, 5000)
+function update() {
+  fetch("/numbers.json")
+    .then((response) => {
+      return response.json()
+    })
+    .then((json) => {
+      let selectedNumbers = json.numbers;
+      for (let x = 0; x < 5; x++) {
+        for (let y = 0; y < 5; y++) {
+          let cell = document.getElementById(`c${x}${y}`)
+          let val = parseInt(cell.innerText)
+          if (selectedNumbers.slice(-1)[0] == val) {
+            cell.style.backgroundColor = "#ec4646"
+          }
+          else if (selectedNumbers.includes(val)) {
+            cell.style.backgroundColor = "#ffd75e"
+          }
+        }
+      }
+    })
+    .finally(() => {
+      setTimeout(update, 5000)
+    })
 }
 
-setTimeout(callUpdate, 5000)
+setTimeout(update, 5000)
 </script>
 <style type="text/css">
   #card {
@@ -64,6 +84,5 @@ setTimeout(callUpdate, 5000)
   }
 </style>
 
-<button id="update" onclick="window.rubyVM.evalAsync('update')">UPDATE</button>
 <table id="card">
 </table>
