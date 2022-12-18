@@ -41,14 +41,13 @@ function isBingo(selectedNumbers) {
       bingo[y][x] = window.getComputedStyle(cell, "").backgroundColor != 'rgb(180, 218, 250)'
     }
   }
-  let n = 0;
   for (let i = 0; i < 5; i++) {
-    if ([0, 1, 2, 3, 4].every((j) => bingo[i][j])) n++;
-    if ([0, 1, 2, 3, 4].every((j) => bingo[j][i])) n++;
+    if ([0, 1, 2, 3, 4].every((j) => bingo[i][j])) return true;
+    if ([0, 1, 2, 3, 4].every((j) => bingo[j][i])) return true;
   }
-  if ([0, 1, 2, 3, 4].every((i) => bingo[i][i])) n++;
-  if ([0, 1, 2, 3, 4].every((i) => bingo[i][4 - i])) n++;
-  return n >= 3;
+  if ([0, 1, 2, 3, 4].every((i) => bingo[i][i])) return true;
+  if ([0, 1, 2, 3, 4].every((i) => bingo[i][4 - i])) return true;
+  return false;
 }
 
 function sayBingo(i) {
