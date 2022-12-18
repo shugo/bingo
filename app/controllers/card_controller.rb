@@ -1,5 +1,5 @@
 class CardController < ApplicationController
   def show
-    @seed = session[:seed] ||= Time.now.to_i
+    @seed = session[:seed] ||= SecureRandom.rand(0xFFFFFFFF)
   end
 end
