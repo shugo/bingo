@@ -5,38 +5,44 @@ class Number
 
   def self.create
     synchronize do
-      numbers = read_numbers
+      numbers = read_numbers rescue []
       return numbers if numbers.size >= 75
       candidates = (1..75).to_a - numbers
       numbers.push(candidates.sample)
-      File.write(TMP_JSON_FILE_PATH, { numbers: numbers }.to_json)
-      File.rename(TMP_JSON_FILE_PATH, JSON_FILE_PATH)
+      write_numbers(numbers)
       numbers
     end
   end
 
   def self.clear
     synchronize do
-      File.unlink(JSON_FILE_PATH)
+      write_numbers([])
     end
-  rescue Errno::ENOENT
   end
 
   def self.all
-    synchronize(shared: true) do
-      read_numbers
+    synchronize do
+      begin
+        read_numbers
+      rescue Errno::ENOENT
+        write_numbers([])
+      end
     end
   end
 
   def self.read_numbers
     JSON.parse(File.read(JSON_FILE_PATH))["numbers"]
-  rescue Errno::ENOENT, JSON::ParserError
-    []
   end
 
-  def self.synchronize(shared: false, &block)
+  def self.write_numbers(numbers)
+    File.write(TMP_JSON_FILE_PATH, { numbers: numbers }.to_json)
+    File.rename(TMP_JSON_FILE_PATH, JSON_FILE_PATH)
+    numbers
+  end
+
+  def self.synchronize(&block)
     File.open(LOCK_FILE_PATH, "w") do |f|
-      f.flock(shared ? File::LOCK_SH : File::LOCK_EX)
+      f.flock(File::LOCK_EX)
       block.call
     end
   end
