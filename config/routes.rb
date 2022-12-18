@@ -2,6 +2,8 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :numbers, only: [:index, :create]
     delete "/numbers", to: "numbers#destroy"
+
+    root "numbers#index"
   end
   resources :numbers, only: [:index]
   resource :card, only: [:show]
