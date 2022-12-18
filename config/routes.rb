@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
-  resources :numbers, only: [:index, :create]
-  get "/numbers/selected", to: "numbers#selected"
-  delete "/numbers", to: "numbers#destroy"
+  namespace :admin do
+    resources :numbers, only: [:index, :create]
+    delete "/numbers", to: "numbers#destroy"
+  end
+  resources :numbers, only: [:index]
   resource :card, only: [:show]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

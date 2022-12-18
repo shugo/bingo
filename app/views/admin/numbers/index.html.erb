@@ -65,8 +65,8 @@
 </style>
 
 <div id="main">
-<%= link_to "SELECT", numbers_path, data: { "turbo-method": :post }, class: "btn btn--orange btn--radius" %>
-<%= link_to "RESET", numbers_path, data: { "turbo-method": :delete }, class: "btn btn--orange btn--radius" %>
+<%= link_to "SELECT", admin_numbers_path, data: { "turbo-method": :post }, class: "btn btn--orange btn--radius" %>
+<%= link_to "RESET", admin_numbers_path, data: { "turbo-method": :delete }, class: "btn btn--orange btn--radius" %>
 <div id="numbers">
 <%= turbo_frame_tag "numbers" do %>
 <%= render partial: "numbers", locals: { numbers: @numbers } %>
