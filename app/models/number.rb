@@ -10,7 +10,6 @@ class Number
       candidates = (1..75).to_a - numbers
       numbers.push(candidates.sample)
       write_numbers(numbers)
-      numbers
     end
   end
 
