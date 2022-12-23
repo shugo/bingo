@@ -6,6 +6,9 @@
   #main {
     padding: 30px;
   }
+  #qrcode {
+    float: right;
+  }
   #numbers {
     margin-top: 30px;
   }
@@ -67,6 +70,7 @@
 <div id="main">
 <%= link_to "SELECT", admin_numbers_path, data: { "turbo-method": :post }, class: "btn btn--orange btn--radius" %>
 <%= link_to "RESET", admin_numbers_path, data: { "turbo-method": :delete }, class: "btn btn--orange btn--radius" %>
+<img id="qrcode" src="/qrcode.png">
 <div id="numbers">
 <%= turbo_frame_tag "numbers" do %>
 <%= render partial: "numbers", locals: { numbers: @numbers } %>
