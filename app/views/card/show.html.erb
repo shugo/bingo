@@ -5,7 +5,6 @@
   srand(<%= @seed %>)
 
   def document = JS.global[:document]
-  def window = JS.global[:window]
 
   CARD = (1..75).each_slice(15).map { |i| i.sample(5) }.transpose
   CARD[2][2] = ""
