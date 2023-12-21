@@ -1,4 +1,4 @@
-<script src="https://cdn.jsdelivr.net/npm/@ruby/3.2-wasm-wasi@2.4.0/dist/browser.script.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ruby-3_2-wasm-wasi@1.0.1/dist/browser.script.iife.js"></script>
 <script type="text/ruby">
   require "js"
 
@@ -22,13 +22,6 @@
     JS.eval("return new Promise((resolve) => setTimeout(resolve, #{ms}))").await
   end
 
-  def bingo?(selected)
-    (0..4).any? { |i| (0..4).all? { |j| selected[i][j] } } ||
-      (0..4).any? { |i| (0..4).all? { |j| selected[j][i] } } ||
-      (0..4).all? { |i| selected[i][i] } ||
-      (0..4).all? { |i| selected[i][4-i] }
-  end
-
   def update_loop
     selected = Array.new(5) { [] }
     selected[2][2] = true
@@ -47,7 +40,15 @@
           end
         end
       end
-      if bingo?(selected)
+<%
+  is_bingo = [
+    *(0..4).map { |i| (0..4).map { |j| "selected[#{i}][#{j}]" }.join("&&") },
+    *(0..4).map { |i| (0..4).map { |j| "selected[#{j}][#{i}]" }.join("&&") },
+    (0..4).map { |i| "selected[#{i}][#{i}]" }.join("&&"),
+    (0..4).map { |i| "selected[#{i}][#{4-i}]" }.join("&&")
+  ].join("||")
+%>
+      if <%== is_bingo %>
         for i in 0..4
           cell = document.getElementById("h#{i}")
           cell[:style][:backgroundColor] = "#ec4646"
