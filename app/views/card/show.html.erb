@@ -18,8 +18,8 @@ class Random {
 }
 
 window.addEventListener("load", (event) => {
-  var rand = new Random(<%= @seed %>);
-  var cardValues = Array.from(Array(5).keys()).map(i => 
+  let rand = new Random(<%= @seed %>);
+  let cardValues = Array.from(Array(5).keys()).map(i => 
     Array.from(Array(15).keys(), j => 1 + 15 * i + j)
   ).map(nums => 
     nums.map(i => [rand.next(), i]).sort().map(i => i[1]).slice(0, 5)
@@ -27,7 +27,7 @@ window.addEventListener("load", (event) => {
   cardValues = cardValues[0].map((col, i) => cardValues.map(row => row[i]));
   cardValues[2][2] = "";
   
-  var card = document.getElementById("card");
+  let card = document.getElementById("card");
   card.innerHTML = 
     '<tr><th id="h0">B</th><th id="h1">I</th><th id="h2">N</th><th id="h3">G</th><th id="h4">O</th></tr>' +
     Array.from(Array(5).keys(), y =>
@@ -45,7 +45,7 @@ function isBingo(selectedNumbers) {
   let bingo = [[], [], [], [], []];
   for (let x = 0; x < 5; x++) {
     for (let y = 0; y < 5; y++) {
-      let cell = document.getElementById(`c${x}${y}`)
+      let cell = document.getElementById(`c${x}${y}`);
       bingo[y][x] = window.getComputedStyle(cell, "").backgroundColor != 'rgb(180, 218, 250)'
     }
   }
@@ -59,27 +59,27 @@ function isBingo(selectedNumbers) {
 }
 
 function sayBingo(i) {
-  let cell = document.getElementById(`h${i}`)
-  cell.style.backgroundColor = "#ec4646"
+  let cell = document.getElementById(`h${i}`);
+  cell.style.backgroundColor = "#ec4646";
   if (i < 4) setTimeout(() => sayBingo(i + 1), 500);
 }
 
 function update() {
   fetch("/numbers.json")
     .then((response) => {
-      return response.json()
+      return response.json();
     })
     .then((json) => {
       let selectedNumbers = json.numbers;
       for (let x = 0; x < 5; x++) {
         for (let y = 0; y < 5; y++) {
-          let cell = document.getElementById(`c${x}${y}`)
-          let val = parseInt(cell.innerText)
+          let cell = document.getElementById(`c${x}${y}`);
+          let val = parseInt(cell.innerText);
           if (selectedNumbers.slice(-1)[0] == val) {
-            cell.style.backgroundColor = "#ec4646"
+            cell.style.backgroundColor = "#ec4646";
           }
           else if (selectedNumbers.includes(val)) {
-            cell.style.backgroundColor = "#ffd75e"
+            cell.style.backgroundColor = "#ffd75e";
           }
         }
       }
@@ -87,16 +87,16 @@ function update() {
         sayBingo(0);
       }
       else {
-        setTimeout(update, 5000)
+        setTimeout(update, 5000);
       }
     })
     .catch((error) => {
       console.log(error);
-      setTimeout(update, 5000)
+      setTimeout(update, 5000);
     })
 }
 
-setTimeout(update, 5000)
+setTimeout(update, 5000);
 </script>
 
 <style type="text/css">
