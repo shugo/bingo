@@ -1,72 +1,104 @@
-<script src="https://cdn.jsdelivr.net/npm/ruby-3_2-wasm-wasi@1.0.1/dist/browser.script.iife.js"></script>
-<script type="text/ruby">
-  require "js"
-
-  srand(<%= @seed %>)
-
-  def document = JS.global[:document]
-
-  CARD = (1..75).each_slice(15).map { |i| i.sample(5) }.transpose
-  CARD[2][2] = ""
-
-  card = document.getElementById("card")
-  card[:innerHTML] = 
-    "<tr>" + "BINGO".chars.map.with_index { |c, i| "<th id=\"h#{i}\">#{c}</th>" }.join + "</tr>" +
-    CARD.map.with_index { |row, y|
-      "<tr>" + row.map.with_index { |i, x| "<td id=\"c#{x}#{y}\">#{i}</td>" }.join + "</tr>"
-    }.join
-  cell = document.getElementById("c22")
-  cell[:style][:backgroundColor] = "#ffd75e"
-
-  def sleep_ms(ms)
-    JS.eval("return new Promise((resolve) => setTimeout(resolve, #{ms}))").await
-  end
-
-  def update_loop
-    selected = Array.new(5) { [] }
-    selected[2][2] = true
-    while true
-      selected_numbers = JS.global.fetch("/numbers.json?t=#{Time.now.to_i}").await.json.await[:numbers].to_s.split(/,/).map(&:to_i)
-      for x in 0..4
-        for y in 0..4
-          cell = document.getElementById("c#{x}#{y}")
-          if selected_numbers.include?(CARD[y][x])
-            selected[y][x] = true
-            if selected_numbers.last == CARD[y][x]
-              cell[:style][:backgroundColor] = "#ec4646"
-            else
-              cell[:style][:backgroundColor] = "#ffd75e"
-            end
-          end
-        end
-      end
-<%
-  is_bingo = [
-    *(0..4).map { |i| (0..4).map { |j| "selected[#{i}][#{j}]" }.join("&&") },
-    *(0..4).map { |i| (0..4).map { |j| "selected[#{j}][#{i}]" }.join("&&") },
-    (0..4).map { |i| "selected[#{i}][#{i}]" }.join("&&"),
-    (0..4).map { |i| "selected[#{i}][#{4-i}]" }.join("&&")
-  ].join("||")
-%>
-      if <%== is_bingo %>
-        for i in 0..4
-          cell = document.getElementById("h#{i}")
-          cell[:style][:backgroundColor] = "#ec4646"
-          sleep_ms(500)
-        end
-        return
-      end
-      sleep_ms(5000)
-    end
-  end
-</script>
 <script type="text/javascript">
-async function start() {
-  await new Promise((resolve) => setTimeout(resolve, 5000))
-  await window.rubyVM.evalAsync("update_loop")
+class Random {
+  constructor(seed = 88675123) {
+    this.x = 123456789;
+    this.y = 362436069;
+    this.z = 521288629;
+    this.w = seed;
+  }
+  
+  // XorShift
+  next() {
+    let t;
+ 
+    t = this.x ^ (this.x << 11);
+    this.x = this.y; this.y = this.z; this.z = this.w;
+    return this.w = (this.w ^ (this.w >>> 19)) ^ (t ^ (t >>> 8)); 
+  }
 }
-start()
+
+window.addEventListener("load", (event) => {
+  var rand = new Random(<%= @seed %>);
+  var cardValues = Array.from(Array(5).keys()).map(i => 
+    Array.from(Array(15).keys(), j => 1 + 15 * i + j)
+  ).map(nums => 
+    nums.map(i => [rand.next(), i]).sort().map(i => i[1]).slice(0, 5)
+  );
+  cardValues = cardValues[0].map((col, i) => cardValues.map(row => row[i]));
+  cardValues[2][2] = "";
+  
+  var card = document.getElementById("card");
+  card.innerHTML = 
+    '<tr><th id="h0">B</th><th id="h1">I</th><th id="h2">N</th><th id="h3">G</th><th id="h4">O</th></tr>' +
+    Array.from(Array(5).keys(), y =>
+      '<tr>' +
+        Array.from(Array(5).keys(), x =>
+          `<td id="c${x}${y}">${cardValues[y][x]}</td>`
+        ).join('') +
+       '</tr>'
+    ).join('');
+  cell = document.getElementById('c22');
+  cell.style.backgroundColor = '#ffd75e';
+});
+
+function isBingo(selectedNumbers) {
+  let bingo = [[], [], [], [], []];
+  for (let x = 0; x < 5; x++) {
+    for (let y = 0; y < 5; y++) {
+      let cell = document.getElementById(`c${x}${y}`)
+      bingo[y][x] = window.getComputedStyle(cell, "").backgroundColor != 'rgb(180, 218, 250)'
+    }
+  }
+  for (let i = 0; i < 5; i++) {
+    if ([0, 1, 2, 3, 4].every((j) => bingo[i][j])) return true;
+    if ([0, 1, 2, 3, 4].every((j) => bingo[j][i])) return true;
+  }
+  if ([0, 1, 2, 3, 4].every((i) => bingo[i][i])) return true;
+  if ([0, 1, 2, 3, 4].every((i) => bingo[i][4 - i])) return true;
+  return false;
+}
+
+function sayBingo(i) {
+  let cell = document.getElementById(`h${i}`)
+  cell.style.backgroundColor = "#ec4646"
+  if (i < 4) setTimeout(() => sayBingo(i + 1), 500);
+}
+
+function update() {
+  fetch("/numbers.json")
+    .then((response) => {
+      return response.json()
+    })
+    .then((json) => {
+      let selectedNumbers = json.numbers;
+      for (let x = 0; x < 5; x++) {
+        for (let y = 0; y < 5; y++) {
+          let cell = document.getElementById(`c${x}${y}`)
+          let val = parseInt(cell.innerText)
+          if (selectedNumbers.slice(-1)[0] == val) {
+            cell.style.backgroundColor = "#ec4646"
+          }
+          else if (selectedNumbers.includes(val)) {
+            cell.style.backgroundColor = "#ffd75e"
+          }
+        }
+      }
+      if (isBingo(selectedNumbers)) {
+        sayBingo(0);
+      }
+      else {
+        setTimeout(update, 5000)
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      setTimeout(update, 5000)
+    })
+}
+
+setTimeout(update, 5000)
 </script>
+
 <style type="text/css">
   #card {
     font-family: sans-serif;
