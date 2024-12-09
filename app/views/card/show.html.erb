@@ -65,7 +65,8 @@ function sayBingo(i) {
 }
 
 function update() {
-  fetch("/numbers.json")
+  let t = new Date().getTime();
+  fetch(`/numbers.json?t=${t}`)
     .then((response) => {
       return response.json();
     })
