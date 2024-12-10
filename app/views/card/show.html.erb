@@ -17,6 +17,9 @@ class Random {
   }
 }
 
+var startTime = new Date();
+const updateDurationMilliSeconds = 1800000;
+
 window.addEventListener("load", (event) => {
   let rand = new Random(<%= @seed %>);
   let cardValues = Array.from(Array(5).keys()).map(i => 
@@ -88,7 +91,12 @@ function update() {
         sayBingo(0);
       }
       else {
-        setTimeout(update, 5000);
+        if (new Date() - startTime <= updateDurationMilliSeconds) {
+          setTimeout(update, 5000);
+        }
+        else {
+          console.log("update stopped");
+        }
       }
     })
     .catch((error) => {
