@@ -67,6 +67,15 @@ function sayBingo(i) {
   if (i < 4) setTimeout(() => sayBingo(i + 1), 500);
 }
 
+function setNextUpdate() {
+  if (new Date() - startTime <= updateDurationMilliSeconds) {
+    setTimeout(update, 5000);
+  }
+  else {
+    console.log("update stopped");
+  }
+}
+
 function update() {
   let t = new Date().getTime();
   fetch(`/numbers.json?t=${t}`)
@@ -91,17 +100,12 @@ function update() {
         sayBingo(0);
       }
       else {
-        if (new Date() - startTime <= updateDurationMilliSeconds) {
-          setTimeout(update, 5000);
-        }
-        else {
-          console.log("update stopped");
-        }
+        setNextUpdate();
       }
     })
     .catch((error) => {
       console.log(error);
-      setTimeout(update, 5000);
+      setNextUpdate();
     })
 }
 
